@@ -32,8 +32,8 @@ footer{text-align:center;padding:24px;font-size:14px}.banner{background:var(--ye
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 /* ====== SET THESE TWO VALUES (Supabase > Project Settings > API). The publishable/anon key is safe in the browser; never paste a secret or service-role key. ====== */
-const SUPABASE_URL = "SUPABASE_URL";
-const SUPABASE_PUBLISHABLE_KEY = "SUPABASE_PUBLISHABLE_KEY";
+const SUPABASE_URL = "default";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_nVG3q3NV_9pC9vQwwyYK-Q_lH2OMIFA";
 /* ================================================================================================================================ */
 const configured = /^https:\/\//.test(SUPABASE_URL);
 const sb = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
@@ -50,17 +50,26 @@ function mascot(m = 'happy', s = 120) {
   return `<svg width="${s}" height="${s}" viewBox="0 0 200 200" role="img" aria-label="Lito the chameleon, ${m}"><path d="M150 150C192 150 196 98 166 96C146 95 142 122 160 124" fill="none" stroke="#0F766E" stroke-width="14" stroke-linecap="round"/><ellipse cx="100" cy="142" rx="58" ry="36" fill="#14B8A6"/><path d="M70 152q30 18 60 0" fill="none" stroke="#FACC15" stroke-width="8" stroke-linecap="round"/><circle cx="96" cy="88" r="46" fill="#14B8A6"/><path d="M62 54l8-16 10 14 10-16 10 16z" fill="#FB7185"/><circle cx="118" cy="78" r="20" fill="#fff" stroke="#0F2A43" stroke-width="5"/><circle cx="${px}" cy="${py}" r="8" fill="#0F2A43"/><path d="${mouth}" fill="${m === 'celebrate' ? '#FB7185' : 'none'}" stroke="#0F2A43" stroke-width="5" stroke-linecap="round"/>${extra}</svg>`;
 }
 
+
 function show(html) {
   const nav = user
     ? `<a href="#/dashboard">Home</a><a href="#/practice">Practice</a><a href="#/profile">Profile</a><button class="btn ghost" id="out">Log out</button>`
     : `<a class="btn ghost" href="#/login">Log in</a><a class="btn" href="#/register">Sign up</a>`;
-  app.innerHTML = (configured ? '' : '<div class="banner">Setup needed: add your Supabase URL and key at the top of index.html.</div>') +
+
+  app.innerHTML =
     `<header class="top"><a href="#/" class="logo">${mascot('happy', 38)}Linguito</a><nav>${nav}</nav></header><main>${html}</main>` +
     `<footer>© Linguito · <a href="#/about">About</a> · <a href="#/privacy">Privacy</a> · <a href="#/terms">Terms</a> · <a href="#/contact">Contact</a></footer>`;
+
   const o = document.getElementById('out');
-  if (o) o.onclick = async () => { await sb.auth.signOut(); user = null; location.hash = '#/'; };
+  if (o) o.onclick = async () => {
+    await sb.auth.signOut();
+    user = null;
+    location.hash = '#/';
+  };
+
   window.scrollTo(0, 0);
 }
+
 function bindForm(id, fn) {
   const f = document.getElementById(id);
   f.onsubmit = async e => {

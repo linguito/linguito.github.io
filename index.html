@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Linguito – Learn English. Find Your Voice.</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%2314B8A6'/%3E%3Ccircle cx='58' cy='42' r='14' fill='white' stroke='%230F2A43' stroke-width='4'/%3E%3Ccircle cx='62' cy='44' r='5' fill='%230F2A43'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#14B8A6;--yellow:#FACC15;--coral:#FB7185;--bg:#FAFAF5;--navy:#0F2A43}
+*{box-sizing:border-box}body{margin:0;font-family:Nunito,ui-rounded,system-ui,sans-serif;background:var(--bg);color:var(--navy);line-height:1.5}
+a{color:inherit}main{max-width:960px;margin:0 auto;padding:20px}
+.top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;max-width:960px;margin:0 auto;padding:14px 20px}
+.top nav{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:8px;font-weight:900;font-size:24px;text-decoration:none}
+.btn{display:inline-block;border:2px solid var(--teal);border-radius:999px;background:var(--teal);color:var(--navy);padding:10px 22px;font-weight:800;font-size:16px;font-family:inherit;text-decoration:none;cursor:pointer;transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}.btn:disabled{opacity:.6}.ghost{background:transparent;border-color:var(--navy)}
+:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+.card{background:#fff;border-radius:20px;padding:20px;box-shadow:0 2px 10px rgba(15,42,67,.08)}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.hero{display:grid;gap:24px;align-items:center;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));padding:30px 0}
+h1{font-size:clamp(32px,6vw,52px);line-height:1.1;margin:0 0 12px;font-weight:900}h2{margin:0 0 8px}
+.field{width:100%;padding:12px;border:2px solid #cfd8dc;border-radius:12px;font-size:16px;font-family:inherit;margin:4px 0 12px}
+.err{color:#9f1239;background:#ffe4e6;border-radius:10px;margin:0 0 10px;font-weight:700}.err:not(:empty){padding:10px}
+.opt{display:block;width:100%;text-align:left;margin:8px 0;padding:12px;border:2px solid #cfd8dc;border-radius:12px;background:#fff;font-size:16px;font-family:inherit;cursor:pointer;color:var(--navy)}
+.opt.good{border-color:#0d9488;background:#ccfbf1}.opt.bad{border-color:#e11d48;background:#ffe4e6}
+.bar{height:14px;background:#e2e8f0;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:var(--teal)}
+.tag{font-size:12px;font-weight:800;background:var(--yellow);border-radius:99px;padding:2px 10px}
+.hero svg{animation:bob 3s ease-in-out infinite}@keyframes bob{50%{transform:translateY(-8px)}}
+footer{text-align:center;padding:24px;font-size:14px}.banner{background:var(--yellow);padding:10px 20px;text-align:center;font-weight:800}
+.narrow{max-width:420px;margin:0 auto}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head>
+<body><div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+/* ====== SET THESE TWO VALUES (Supabase > Project Settings > API). The publishable/anon key is safe in the browser; never paste a secret or service-role key. ====== */
+const SUPABASE_URL = "SUPABASE_URL";
+const SUPABASE_PUBLISHABLE_KEY = "SUPABASE_PUBLISHABLE_KEY";
+/* ================================================================================================================================ */
+const configured = /^https:\/\//.test(SUPABASE_URL);
+const sb = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
+const app = document.getElementById('app');
+let user = null;
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function mascot(m = 'happy', s = 120) {
+  const mouth = {happy:'M80 108q20 16 40 0', thinking:'M84 112h32', encourage:'M80 106q20 10 40 0', celebrate:'M78 102q22 26 44 0z'}[m];
+  const px = m === 'thinking' ? 130 : 126, py = m === 'thinking' ? 66 : 76;
+  const extra = m === 'celebrate'
+    ? '<circle cx="30" cy="40" r="6" fill="#FACC15"/><circle cx="175" cy="45" r="7" fill="#FB7185"/><circle cx="40" cy="120" r="5" fill="#FACC15"/>'
+    : m === 'thinking' ? '<circle cx="160" cy="40" r="6" fill="#0F2A43" opacity=".3"/><circle cx="176" cy="22" r="9" fill="#0F2A43" opacity=".3"/>' : '';
+  return `<svg width="${s}" height="${s}" viewBox="0 0 200 200" role="img" aria-label="Lito the chameleon, ${m}"><path d="M150 150C192 150 196 98 166 96C146 95 142 122 160 124" fill="none" stroke="#0F766E" stroke-width="14" stroke-linecap="round"/><ellipse cx="100" cy="142" rx="58" ry="36" fill="#14B8A6"/><path d="M70 152q30 18 60 0" fill="none" stroke="#FACC15" stroke-width="8" stroke-linecap="round"/><circle cx="96" cy="88" r="46" fill="#14B8A6"/><path d="M62 54l8-16 10 14 10-16 10 16z" fill="#FB7185"/><circle cx="118" cy="78" r="20" fill="#fff" stroke="#0F2A43" stroke-width="5"/><circle cx="${px}" cy="${py}" r="8" fill="#0F2A43"/><path d="${mouth}" fill="${m === 'celebrate' ? '#FB7185' : 'none'}" stroke="#0F2A43" stroke-width="5" stroke-linecap="round"/>${extra}</svg>`;
+}
+
+function show(html) {
+  const nav = user
+    ? `<a href="#/dashboard">Home</a><a href="#/practice">Practice</a><a href="#/profile">Profile</a><button class="btn ghost" id="out">Log out</button>`
+    : `<a class="btn ghost" href="#/login">Log in</a><a class="btn" href="#/register">Sign up</a>`;
+  app.innerHTML = (configured ? '' : '<div class="banner">Setup needed: add your Supabase URL and key at the top of index.html.</div>') +
+    `<header class="top"><a href="#/" class="logo">${mascot('happy', 38)}Linguito</a><nav>${nav}</nav></header><main>${html}</main>` +
+    `<footer>© Linguito · <a href="#/about">About</a> · <a href="#/privacy">Privacy</a> · <a href="#/terms">Terms</a> · <a href="#/contact">Contact</a></footer>`;
+  const o = document.getElementById('out');
+  if (o) o.onclick = async () => { await sb.auth.signOut(); user = null; location.hash = '#/'; };
+  window.scrollTo(0, 0);
+}
+function bindForm(id, fn) {
+  const f = document.getElementById(id);
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const b = f.querySelector('button'), err = f.querySelector('.err'), t = b.textContent;
+    err.textContent = ''; b.disabled = true; b.textContent = 'Please wait…';
+    try {
+      if (!configured) throw new Error('Add your Supabase URL and key in index.html first.');
+      await fn(Object.fromEntries(new FormData(f)), err);
+    } catch (x) { err.textContent = x.message || 'Something went wrong. Try again.'; }
+    b.disabled = false; b.textContent = t;
+  };
+}
+const authBox = (title, id, fields, btn, foot) => show(`<div class="narrow card"><h1 style="font-size:32px">${title}</h1><form id="${id}">${fields}<p class="err" role="alert"></p><button class="btn" style="width:100%">${btn}</button></form><p>${foot}</p></div>`);
+const inp = (label, name, type = 'text', extra = '') => `<label>${label}<input class="field" name="${name}" type="${type}" required ${extra}></label>`;
+const info = (t, body) => show(`<div class="narrow card"><h1 style="font-size:32px">${t}</h1>${body}</div>`);
+
+const pages = {
+  '': () => show(`<section class="hero"><div><h1>Learn English. Find Your Voice.</h1><p>Practice everyday English at your own pace. Answer questions, earn points, and build confidence one step at a time.</p><a class="btn" href="#/register">Start learning</a> <a class="btn ghost" href="#/login">Log in</a></div><div style="text-align:center">${mascot('celebrate', 240)}</div></section>
+    <h2>What you can do</h2><div class="grid">
+    <div class="card"><h2>Interactive exercises</h2><p>Multiple-choice questions with instant feedback and server-checked points.</p><span class="tag">Available</span></div>
+    <div class="card"><h2>Progress</h2><p>Your points, level and completed activities.</p><span class="tag">Available</span></div>
+    <div class="card"><h2>Vocabulary</h2><p>Flashcards by topic.</p><span class="tag">Coming soon</span></div>
+    <div class="card"><h2>Listening</h2><p>Short everyday dialogues with transcripts.</p><span class="tag">Coming soon</span></div>
+    <div class="card"><h2>Speaking</h2><p>Record answers and get teacher feedback.</p><span class="tag">Coming soon</span></div></div>`),
+  login: () => { authBox('Welcome back', 'f', inp('Email', 'email', 'email', 'autocomplete="email"') + inp('Password', 'password', 'password', 'autocomplete="current-password"'), 'Log in', 'New here? <a href="#/register">Create an account</a> · <a href="#/reset">Forgot password?</a>');
+    bindForm('f', async d => { const { error } = await sb.auth.signInWithPassword({ email: d.email, password: d.password }); if (error) throw new Error('Email or password is incorrect, or your email is not confirmed yet.'); location.hash = '#/dashboard'; }); },
+  register: () => { authBox('Create your student account', 'f', inp('Name', 'name', 'text', 'minlength="2" maxlength="60"') + inp('Email', 'email', 'email') + inp('Password (8+ characters)', 'password', 'password', 'minlength="8" autocomplete="new-password"'), 'Sign up', 'Already registered? <a href="#/login">Log in</a>');
+    bindForm('f', async d => { const { data, error } = await sb.auth.signUp({ email: d.email, password: d.password, options: { data: { full_name: d.name.trim() }, emailRedirectTo: location.origin + location.pathname } });
+      if (error) throw new Error('We could not create your account. Try another email or a longer password.');
+      if (data.session) location.hash = '#/dashboard'; else info('Check your email', '<p>We sent you a confirmation link. Open it, then log in.</p><a class="btn" href="#/login">Go to login</a>'); }); },
+  reset: () => { authBox('Reset your password', 'f', inp('Email', 'email', 'email'), 'Send reset link', '<a href="#/login">Back to login</a>');
+    bindForm('f', async d => { const { error } = await sb.auth.resetPasswordForEmail(d.email, { redirectTo: location.origin + location.pathname }); if (error) throw new Error('Could not send the email. Try again later.'); info('Check your email', '<p>If that address has an account, a reset link is on its way.</p>'); }); },
+  newpass: () => { authBox('Choose a new password', 'f', inp('New password (8+ characters)', 'password', 'password', 'minlength="8" autocomplete="new-password"'), 'Save password', '');
+    bindForm('f', async d => { const { error } = await sb.auth.updateUser({ password: d.password }); if (error) throw new Error('Could not save the password. Use the reset link again.'); location.hash = '#/dashboard'; }); },
+  dashboard: async () => {
+    const [p, l, a, e] = await Promise.all([
+      sb.from('profiles').select('full_name,role').eq('id', user.id).single(), sb.from('points_ledger').select('points'),
+      sb.from('attempts').select('exercise_id'), sb.from('exercises').select('id', { count: 'exact', head: true })]);
+    const pts = (l.data || []).reduce((s, x) => s + x.points, 0), lvl = Math.floor(pts / 50) + 1, done = (a.data || []).length, total = e.count || 0;
+    show(`<section class="card hero"><div><h1 style="font-size:36px">Hello, ${esc(p.data?.full_name || 'learner')}!</h1><p>Level ${lvl} · ${pts} points. Every 50 points is a new level.</p><div class="bar" aria-label="Progress"><i style="width:${total ? Math.round(done / total * 100) : 0}%"></i></div><p>${done} of ${total} activities completed</p><a class="btn" href="#/practice">${done < total ? 'Continue learning' : 'Review practice'}</a></div><div style="text-align:center">${mascot(done < total ? 'encourage' : 'celebrate', 150)}</div></section>
+    <div class="grid" style="margin-top:16px"><div class="card"><h2>Weekly assignments</h2><p>No assignments yet. Teacher assignments are not built in this version.</p></div><div class="card"><h2>Teacher feedback</h2><p>Nothing yet.</p></div></div>`);
+  },
+  practice: async () => {
+    const [ex, at] = await Promise.all([sb.from('exercises').select('id,title,config').order('position'), sb.from('attempts').select('exercise_id,correct')]);
+    if (ex.error) return show(`<div class="card"><h2>Could not load exercises</h2><p>Run setup.sql in Supabase, then refresh.</p></div>`);
+    const done = new Map((at.data || []).map(x => [x.exercise_id, x.correct]));
+    show(`<h1 style="font-size:36px">Practice</h1>` + ex.data.map(x => `<section class="card" style="margin-bottom:16px" id="c${x.id}"><span class="tag">${esc(x.title)}</span><h2 style="margin-top:8px">${esc(x.config.question)}</h2>${done.has(x.id)
+      ? `<p>${done.get(x.id) ? 'Completed. Correct!' : 'Completed.'} Each question gives points once.</p>`
+      : x.config.options.map((o, i) => `<button class="opt" data-e="${x.id}" data-i="${i}">${esc(o)}</button>`).join('')}<div class="fb" aria-live="polite"></div></section>`).join(''));
+    document.querySelectorAll('.opt').forEach(b => b.onclick = async () => {
+      const card = b.closest('section'), btns = card.querySelectorAll('.opt'), fb = card.querySelector('.fb');
+      btns.forEach(x => x.disabled = true);
+      const { data, error } = await sb.rpc('submit_mcq', { p_exercise: b.dataset.e, p_answer: +b.dataset.i });
+      if (error) { fb.innerHTML = '<p class="err">Could not save your answer. Check your connection and try again.</p>'; btns.forEach(x => x.disabled = false); return; }
+      b.classList.add(data.correct ? 'good' : 'bad');
+      if (!data.correct && data.correct_index != null) btns[data.correct_index].classList.add('good');
+      fb.innerHTML = `<p><strong>${data.correct ? 'Correct! +' + data.points + ' points' : 'Not quite.'}</strong> ${esc(data.explanation)}</p>`;
+    });
+  },
+  profile: async () => {
+    const { data } = await sb.from('profiles').select('full_name').eq('id', user.id).single();
+    authBox('Your profile', 'f', `<label>Email<input class="field" value="${esc(user.email)}" disabled></label>` + inp('Name', 'name', 'text', `minlength="2" maxlength="60" value="${esc(data?.full_name)}"`), 'Save changes', '');
+    bindForm('f', async (d, err) => { const { error } = await sb.from('profiles').update({ full_name: d.name.trim() }).eq('id', user.id); if (error) throw new Error('Could not save your name.'); err.style.background = '#ccfbf1'; err.style.color = '#0F2A43'; err.textContent = 'Saved.'; });
+  },
+  about: () => info('About Linguito', '<p>Linguito helps learners in Morocco practise everyday English at A1–A2 level. It is a small project that is growing step by step.</p>'),
+  privacy: () => info('Privacy policy', '<p>We store your email, your name, and your exercise answers and points so your progress is saved. Only you can read your own records. Speaking recordings are not collected in this version. To delete your account, contact us.</p><p><em>This is a plain-language notice, not legal advice.</em></p>'),
+  terms: () => info('Terms of use', '<p>Use Linguito for learning only. Keep your password private. We may change or remove features as the project grows.</p>'),
+  contact: () => info('Contact', '<p>Questions or deletion requests: add your support email address here in index.html.</p>')
+};
+const open = new Set(['', 'login', 'register', 'reset', 'newpass', 'about', 'privacy', 'terms', 'contact']);
+async function route() {
+  if (/access_token|type=recovery|type=signup/.test(location.hash)) return;        // Supabase is reading a link; the auth event below continues.
+  if (/error_description/.test(location.hash)) { location.hash = '#/login'; return; }
+  const r = location.hash.replace(/^#\//, '');
+  if (configured && !user) user = (await sb.auth.getSession()).data.session?.user ?? null;
+  if (!open.has(r) && !user) { location.hash = '#/login'; return; }
+  try { await (pages[r] || (() => info('Page not found', '<a class="btn" href="#/">Go home</a>')))(); }
+  catch (x) { show('<div class="card"><h2>Something went wrong</h2><p>Refresh the page. If it continues, check your Supabase setup.</p></div>'); }
+}
+if (sb) sb.auth.onAuthStateChange((ev, s) => {
+  user = s?.user ?? null;
+  if (ev === 'PASSWORD_RECOVERY') location.hash = '#/newpass';
+  else if (ev === 'SIGNED_IN' && /access_token|type=/.test(location.hash)) location.hash = '#/dashboard';
+});
+window.addEventListener('hashchange', route);
+route();
+</script></body></html>
